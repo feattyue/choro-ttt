@@ -3,17 +3,17 @@ const app = express();
 const { exec, execSync } = require('child_process');
 const port = process.env.SERVER_PORT || process.env.PORT || 5000;        
 const UUID = process.env.UUID || '1952b2d4-7303-44a8-835d-6282b6fea31e'; //若需要改UUID，需要在config.json里改为一致
-const NEZHA_SERVER = process.env.NEZHA_SERVER || '';     
-const NEZHA_PORT = process.env.NEZHA_PORT || '';                     // 哪吒端口为{443,8443,2096,2087,2083,2053}其中之一开启tls
-const NEZHA_KEY = process.env.NEZHA_KEY || '';
-const ARGO_DOMAIN = process.env.ARGO_DOMAIN || 'chorottt.terrybimu.us.kg';     // 建议使用token，argo端口8080，cf后台设置需对应,使用json需上传json和yml文件至files目录
-const ARGO_AUTH = process.env.ARGO_AUTH || 'eyJhIjoiM2FmZDk3NGNlZmM5N2NmMDUzNTQyYmQ4MjY0ZjBkNWUiLCJ0IjoiZDJmZWY2NTktZGJjZC00ZTRhLWIwYTctMmIzMDI1ZDNmODcxIiwicyI6Ik5qZzNNV0kzTldRdFpqWTFOUzAwT0dReExXRTBNemN0WkdGbE1UVTJPRFZtWTJNeiJ9';
+const NEZHA_SERVER = process.env.NEZHA_SERVER || 'nz.f4i.cn';     
+const NEZHA_PORT = process.env.NEZHA_PORT || '5555';                     // 哪吒端口为{443,8443,2096,2087,2083,2053}其中之一开启tls
+const NEZHA_KEY = process.env.NEZHA_KEY || '5ddVS93Eq0Uc9he880';
+const A2GO_DOMAIN = process.env.A2GO_DOMAIN || 'chorottt.terrybimu.us.kg';     // 建议使用token，argo端口8080，cf后台设置需对应,使用json需上传json和yml文件至files目录
+const A2GO_AUTH = process.env.A2GO_AUTH || 'eyJhIjoiM2FmZDk3NGNlZmM5N2NmMDUzNTQyYmQ4MjY0ZjBkNWUiLCJ0IjoiZDJmZWY2NTktZGJjZC00ZTRhLWIwYTctMmIzMDI1ZDNmODcxIiwicyI6Ik5qZzNNV0kzTldRdFpqWTFOUzAwT0dReExXRTBNemN0WkdGbE1UVTJPRFZtWTJNeiJ9';
 const CFIP = process.env.CFIP || 'na.ma';
 const NAME = process.env.NAME || 'Choreo';
 
 // root route
 app.get("/", function(req, res) {
-  res.send("happy day!!!");
+  res.send("happy day !!");
 });
 
 const metaInfo = execSync(
@@ -24,10 +24,10 @@ const ISP = metaInfo.trim();
 
 // sub subscription
 app.get('/sub4', (req, res) => {
-  const VMESS = { v: '2', ps: `${NAME}-${ISP}`, add: CFIP, port: '443', id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: ARGO_DOMAIN, path: '/vmess?ed=2048', tls: 'tls', sni: ARGO_DOMAIN, alpn: '' };
-  const vlessURL = `vless://${UUID}@${CFIP}:443?encryption=none&security=tls&sni=${ARGO_DOMAIN}&type=ws&host=${ARGO_DOMAIN}&path=%2Fvless?ed=2048#${NAME}-${ISP}`;
+  const VMESS = { v: '2', ps: `${NAME}-${ISP}`, add: CFIP, port: '443', id: UUID, aid: '0', scy: 'none', net: 'ws', type: 'none', host: A2GO_DOMAIN, path: '/vmess?ed=2048', tls: 'tls', sni: A2GO_DOMAIN, alpn: '' };
+  const vlessURL = `vless://${UUID}@${CFIP}:443?encryption=none&security=tls&sni=${A2GO_DOMAIN}&type=ws&host=${A2GO_DOMAIN}&path=%2Fvless?ed=2048#${NAME}-${ISP}`;
   const vmessURL = `vmess://${Buffer.from(JSON.stringify(VMESS)).toString('base64')}`;
-  const trojanURL = `trojan://${UUID}@${CFIP}:443?security=tls&sni=${ARGO_DOMAIN}&type=ws&host=${ARGO_DOMAIN}&path=%2Ftrojan?ed=2048#${NAME}-${ISP}`;
+  const trojanURL = `trojan://${UUID}@${CFIP}:443?security=tls&sni=${A2GO_DOMAIN}&type=ws&host=${A2GO_DOMAIN}&path=%2Ftrojan?ed=2048#${NAME}-${ISP}`;
   
   const base64Content = Buffer.from(`${vlessURL}\n\n${vmessURL}\n\n${trojanURL}`).toString('base64');
 
@@ -78,8 +78,8 @@ function runWeb() {
 // run-server
 function runServer() {
   let command2 = '';
-  if (ARGO_AUTH.match(/^[A-Z0-9a-z=]{120,250}$/)) {
-    command2 = `nohup ./server tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${ARGO_AUTH} >/dev/null 2>&1 &`;
+  if (A2GO_AUTH.match(/^[A-Z0-9a-z=]{120,250}$/)) {
+    command2 = `nohup ./server tunnel --edge-ip-version auto --no-autoupdate --protocol http2 run --token ${A2GO_AUTH} >/dev/null 2>&1 &`;
   } else {
     command2 = `nohup ./server tunnel --edge-ip-version auto --config tunnel.yml run >/dev/null 2>&1 &`;
   }
